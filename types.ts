@@ -10,10 +10,13 @@ export enum View {
 export interface NewsEvent {
   id: number;
   date: string; // YYYY-MM-DD
+  time?: string;
   title: string;
   description: string;
   guestName?: string;
   roomNumber?: string;
+  email?: string;
+  phone?: string;
 }
 
 export interface ParkingBooking {

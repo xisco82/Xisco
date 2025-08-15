@@ -72,10 +72,40 @@ const ParkingView: React.FC = () => {
         setNewBooking({ guestName: '', roomNumber: '' });
     };
 
-    const handleBookSpot = () => {
+    const handleBookSpot = async (e: React.FormEvent) => {
+        e.preventDefault();
         if (!currentSpotId || !newBooking.guestName || !newBooking.roomNumber) return;
-        setBookings([...bookings, { spotId: currentSpotId, date: selectedDate, ...newBooking }]);
-        handleCloseModal();
+        
+        const bookingData = {
+            _subject: `Nueva Reserva: Parking Plaza #${currentSpotId}`,
+            Tipo: "Parking",
+            "Plaza No.": currentSpotId,
+            "Nombre Huésped": newBooking.guestName,
+            "Habitación No.": newBooking.roomNumber,
+            Fecha: selectedDate,
+        };
+
+        try {
+            const response = await fetch("https://formsubmit.co/ajax/el/gefami", {
+                method: "POST",
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(bookingData)
+            });
+
+            if (!response.ok) {
+                throw new Error('Form submission failed');
+            }
+            
+            setBookings([...bookings, { spotId: currentSpotId, date: selectedDate, ...newBooking }]);
+            handleCloseModal();
+
+        } catch (error) {
+            console.error(error);
+            alert("Hubo un error al enviar la reserva. Por favor, inténtelo de nuevo.");
+        }
     };
     
     const handleCancelBooking = (spotId: number) => {
@@ -112,13 +142,15 @@ const ParkingView: React.FC = () => {
             </div>
             
             <Modal isOpen={isModalOpen} onClose={handleCloseModal} title={`Reservar Plaza ${currentSpotId}`}>
-                <div className="space-y-4">
-                    <input type="text" placeholder="Nombre del Huésped" value={newBooking.guestName} onChange={(e) => setNewBooking({ ...newBooking, guestName: e.target.value })} className="w-full p-3 bg-gray-100 dark:bg-gray-700 rounded-lg border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                    <input type="text" placeholder="Número de Habitación" value={newBooking.roomNumber} onChange={(e) => setNewBooking({ ...newBooking, roomNumber: e.target.value })} className="w-full p-3 bg-gray-100 dark:bg-gray-700 rounded-lg border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                    <button onClick={handleBookSpot} className="w-full bg-blue-600 text-white p-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
-                        Confirmar Reserva
-                    </button>
-                </div>
+                <form onSubmit={handleBookSpot}>
+                    <div className="space-y-4">
+                        <input type="text" placeholder="Nombre del Huésped" value={newBooking.guestName} onChange={(e) => setNewBooking({ ...newBooking, guestName: e.target.value })} className="w-full p-3 bg-gray-100 dark:bg-gray-700 rounded-lg border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500" required />
+                        <input type="text" placeholder="Número de Habitación" value={newBooking.roomNumber} onChange={(e) => setNewBooking({ ...newBooking, roomNumber: e.target.value })} className="w-full p-3 bg-gray-100 dark:bg-gray-700 rounded-lg border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500" required />
+                        <button type="submit" className="w-full bg-blue-600 text-white p-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                            Confirmar Reserva
+                        </button>
+                    </div>
+                </form>
             </Modal>
         </div>
     );
