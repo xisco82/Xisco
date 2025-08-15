@@ -69,7 +69,7 @@ const NewsView: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [newEvent, setNewEvent] = useState({ date: '', title: '', description: '' });
+  const [newEvent, setNewEvent] = useState({ date: '', title: '', description: '', guestName: '', roomNumber: '' });
   
   const handleMonthChange = (offset: number) => {
     setCurrentDate(prev => new Date(prev.getFullYear(), prev.getMonth() + offset, 1));
@@ -80,7 +80,7 @@ const NewsView: React.FC = () => {
   };
   
   const handleOpenModal = (dateStr: string) => {
-      setNewEvent({ date: dateStr, title: '', description: '' });
+      setNewEvent({ date: dateStr, title: '', description: '', guestName: '', roomNumber: '' });
       setIsModalOpen(true);
   }
 
@@ -110,22 +110,33 @@ const NewsView: React.FC = () => {
             <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-md animate-fade-in">
                 <h3 className="font-bold text-lg mb-2">Eventos para {selectedDate.toLocaleDateString('es-ES', {day:'numeric', month:'long'})}</h3>
                 {selectedDayEvents.length > 0 ? selectedDayEvents.map(event => (
-                    <div key={event.id} className="border-t border-gray-200 dark:border-gray-700 py-2 first:border-t-0">
-                        <p className="font-semibold">{event.title}</p>
-                        <p className="text-sm text-gray-600 dark:text-gray-300">{event.description}</p>
+                    <div key={event.id} className="border-t border-gray-200 dark:border-gray-700 py-3 first:border-t-0">
+                        <p className="font-semibold text-gray-900 dark:text-gray-100">{event.title}</p>
+                        {event.guestName && (
+                            <p className="text-sm font-medium text-blue-600 dark:text-blue-400 mt-1">
+                                {event.guestName} {event.roomNumber && `- Hab. ${event.roomNumber}`}
+                            </p>
+                        )}
+                        <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">{event.description}</p>
                     </div>
                 )) : <p className="text-sm text-gray-500">No hay eventos para este día.</p>}
             </div>
         )}
       </div>
        <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={`Añadir Evento para ${new Date(newEvent.date + 'T00:00:00').toLocaleDateString('es-ES')}`}>
-            <div className="space-y-4">
-                <input type="text" placeholder="Título del evento" value={newEvent.title} onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })} className="w-full p-3 bg-gray-100 dark:bg-gray-700 rounded-lg border border-gray-300 dark:border-gray-600" />
-                <textarea placeholder="Descripción" value={newEvent.description} onChange={(e) => setNewEvent({ ...newEvent, description: e.target.value })} className="w-full p-3 bg-gray-100 dark:bg-gray-700 rounded-lg border border-gray-300 dark:border-gray-600" rows={3}></textarea>
-                <button onClick={handleAddEvent} className="w-full bg-blue-600 text-white p-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
-                    Guardar Evento
-                </button>
-            </div>
+            <form onSubmit={(e) => { e.preventDefault(); handleAddEvent(); }}>
+                <div className="space-y-4">
+                    <input type="text" placeholder="Título / Tipo de reserva" value={newEvent.title} onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })} className="w-full p-3 bg-gray-100 dark:bg-gray-700 rounded-lg border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500" required />
+                    <div className="grid grid-cols-2 gap-4">
+                        <input type="text" placeholder="Nombre Huésped (Opcional)" value={newEvent.guestName} onChange={(e) => setNewEvent({ ...newEvent, guestName: e.target.value })} className="w-full p-3 bg-gray-100 dark:bg-gray-700 rounded-lg border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                        <input type="text" placeholder="Nº Habitación (Opcional)" value={newEvent.roomNumber} onChange={(e) => setNewEvent({ ...newEvent, roomNumber: e.target.value })} className="w-full p-3 bg-gray-100 dark:bg-gray-700 rounded-lg border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                    </div>
+                    <textarea placeholder="Descripción / Detalles" value={newEvent.description} onChange={(e) => setNewEvent({ ...newEvent, description: e.target.value })} className="w-full p-3 bg-gray-100 dark:bg-gray-700 rounded-lg border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500" rows={3} required></textarea>
+                    <button type="submit" className="w-full bg-blue-600 text-white p-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                        Guardar
+                    </button>
+                </div>
+            </form>
        </Modal>
     </div>
   );

@@ -12,6 +12,8 @@ export interface NewsEvent {
   date: string; // YYYY-MM-DD
   title: string;
   description: string;
+  guestName?: string;
+  roomNumber?: string;
 }
 
 export interface ParkingBooking {
