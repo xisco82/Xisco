@@ -68,7 +68,7 @@ const BikesView: React.FC = () => {
         };
 
         try {
-            const response = await fetch("https://formsubmit.co/ajax/el/gefami", {
+            const response = await fetch("https://formsubmit.co/ajax/xiscoquin@gmail.com", {
                 method: "POST",
                 headers: { 
                     'Content-Type': 'application/json',
